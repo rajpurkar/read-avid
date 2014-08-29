@@ -1,16 +1,22 @@
 extends layout
 
 block content
-	#current
-		h2 Books
-		ul
-			-each book in books
-				li
-					h3=book.title
-					p=book.description
-	#future
-		h2 Add a new book
-		form(action="/submit", method="post")
-			input(type="text", name="title", placeholder="Title")
-			input(type="text", name="desc", placeholder="Enter Description Here")
-			input(type="submit", value="Submit")
+	#content.container
+		#current.col-md-6
+			.row
+				h1 books
+			ul
+				-each book in books
+					.row
+						li
+							h3=book.title
+							p=book.description
+		#future.col-md-6
+			.row
+				h1 Add a new book
+			.row
+				form(action="/submit", method="post", role="form")
+					input.form-control(type="text", name="title", placeholder="Title")
+					textarea.form-control(type="text", name="desc", placeholder="Enter Description Here", rows="3")
+					button#submitBtn.btn.btn-default.col-xs-12.form-control(type="submit")
+						| Submit

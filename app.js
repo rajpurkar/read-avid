@@ -50,7 +50,7 @@ app.use('/deleteAll', function(req,res, next){
 
 app.post('/submit', function(req, res, next){
     new Book({title: req.body.title, description: req.body.desc}).save();
-    res.status(200).end();
+    res.redirect("/");
 });
 
 app.get('/', function(req,res,next){

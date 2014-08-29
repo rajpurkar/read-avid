@@ -1,5 +1,23 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+	style.
+		ul{
+		list-style: none;
+		padding: 0px;
+		}
+	#current
+		h2 Books
+		ul
+			li
+				h3 Steve Jobs
+				p The biography of steve jobs
+			li
+				h3 Double Helix
+				p Account of the discovery of the structure of the DNA
+	#future
+		h2 Add a new book
+		form(action="/submit")
+			input(type="text", name="title", placeholder="Title")
+			input(type="text", name="desc", placeholder="Enter Description Here")
+			input(type="submit", value="Submit")

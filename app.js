@@ -5,8 +5,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/read-avid');
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var Book = require('./routes/book');
 
 var app = express();
 
@@ -22,10 +26,39 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/submit', function(req, res, next){
-	res.send("Got the title " + req.query.title + " and the description: " + req.query.desc);
+
+
+
+
+app.use('/list', function(req, res,next){
+    Book.find(function(error, books) {
+        if(error){
+            res.send(error);
+        }else{
+            res.send(books);    
+        }
+    });
 });
+
+app.use('/deleteAll', function(req,res, next){
+    Book.remove(function (err) {
+        if (err) return next(err);
+    });
+    res.send(200);
+});
+
+
+app.post('/submit', function(req, res, next){
+    new Book({title: req.body.title, description: req.body.desc}).save();
+    res.status(200).end();
+});
+
+app.get('/', function(req,res,next){
+    Book.find(function(error, books) {
+        res.render('index', {books: books});
+    });
+});
+
 app.use('/users', users);
 
 // catch 404 and forward to error handler

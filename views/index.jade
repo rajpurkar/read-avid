@@ -2,7 +2,7 @@ extends layout
 
 block content
 	#content.container
-		#current.col-md-6
+		#books.col-md-4
 			.row
 				h1 books
 			ul
@@ -11,12 +11,20 @@ block content
 						li
 							h3=book.title
 							p=book.description
-		#future.col-md-6
+		#users.col-md-4
 			.row
-				h1 Add a new book
+				h1 Users
+			ul
+				-each user in users
+					.row
+						li
+							h3=user.name
+		#future.col-md-4
+			.row
+				h3 Add a new book
 			.row
 				form(action="/submit", method="post", role="form")
-					input.form-control(type="text", name="title", placeholder="Title")
-					textarea.form-control(type="text", name="desc", placeholder="Enter Description Here", rows="3")
+					input.form-control(type="text", name="title", placeholder="Title" required)
+					textarea.form-control(type="text", name="desc", placeholder="Enter Description Here", rows="3" required)
 					button#submitBtn.btn.btn-default.col-xs-12.form-control(type="submit")
 						| Submit

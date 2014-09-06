@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var session = require('express-session')
 var mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/read-avid');
+mongoose.connect(process.env.MONGOHQ_URL || 'mongodb://localhost/read-avid');
 
 var hash = require('./routes/hash').hash;
 var Book = require('./routes/book');
@@ -26,6 +26,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({secret: "woah cat"}));
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(function (req, res, next) {
+    var err = req.session.error,
+        msg = req.session.success;
+    delete req.session.error;
+    delete req.session.success;
+    res.locals.message = '';
+    if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
+    if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
+    next();
+});
+
 
 function authenticate(name, pass, fn) {
     if (!module.parent) console.log('authenticating %s:%s', name, pass);
@@ -69,13 +81,7 @@ function userExist(req, res, next) {
     });
 }
 
-app.get("/wow", function (req, res) {
-    if (req.session.user) {
-        res.send("Welcome " + req.session.user.username);
-    } else {
-        res.send("<a href='/login'> Login</a>" + "<br>" + "<a href='/signup'> Sign Up</a>");
-    }
-});
+
 
 
 
@@ -105,9 +111,9 @@ app.post('/submit', function(req, res, next){
 
 app.get("/signup", function (req, res) {
     if (req.session.user) {
-        res.redirect("/wow");
+        res.redirect("/");
     } else {
-        res.render("signup");
+        res.render("login");
     }
 });
 
@@ -128,7 +134,7 @@ app.post("/signup", userExist, function (req, res) {
                     req.session.regenerate(function(){
                         req.session.user = user;
                         req.session.success = 'Authenticated as ' + user.username + ' click to <a href="/logout">logout</a>. ' + ' You may now access <a href="/restricted">/restricted</a>.';
-                        res.redirect('/wow');
+                        res.redirect('/');
                     });
                 }
             });
@@ -143,12 +149,9 @@ app.get("/login", function (req, res) {
 app.post("/login", function (req, res) {
     authenticate(req.body.username, req.body.password, function (err, user) {
         if (user) {
-
             req.session.regenerate(function () {
-
                 req.session.user = user;
-                req.session.success = 'Authenticated as ' + user.username + ' click to <a href="/logout">logout</a>. ' + ' You may now access <a href="/restricted">/restricted</a>.';
-                res.redirect('/wow');
+                res.redirect('/');
             });
         } else {
             req.session.error = 'Authentication failed, please check your ' + ' username and password.';
@@ -157,20 +160,22 @@ app.post("/login", function (req, res) {
     });
 });
 
-app.get('/logout', function (req, res) {
+app.post('/logout', function (req, res) {
     req.session.destroy(function () {
-        res.redirect('/wow');
+        res.redirect('/');
     });
 });
 
-app.get('/profile', requiredAuthentication, function (req, res) {
-    res.send('Profile page of '+ req.session.user.username +'<br>'+' click to <a href="/logout">logout</a>');
-});
-
-app.get('/', function(req,res,next){
-    Book.find(function(error, books) {
-        res.render('index', {books: books, users: []});
-    });
+app.get("/", function (req, res) {
+    if (req.session.user) {
+        Book.find(function(error, books) {
+            User.find(function(error, users){
+                res.render('index', {books: books, users: users, user: req.session.user.username});
+            });
+        });
+    } else {
+        res.render('login');
+    }
 });
 
 // catch 404 and forward to error handler

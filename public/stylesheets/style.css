@@ -7,7 +7,7 @@ html, body{
 	color: #333;
 }
 
-h1, h2, h3, input, p, li, textarea{
+h1, h2, h3, input, p, li, textarea,a {
 	font-weight: 200;
 }
 
@@ -45,4 +45,10 @@ ul{
 
 #submitBtn{
 	background-color: rgb(220,220,220);
+}
+
+.navbar{
+	background: none;
+	border: none;
+	padding-top: 10px;
 }

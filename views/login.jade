@@ -1,9 +1,23 @@
 extends layout
 
 block content
-	.container
-		form(action="/login", method="post")
-			input.form-control(type="text", name="username", required)
-			input.form-control(type="password", name="password", required)
-			button.btn.btn-default(type="submit")
-				| Submit
+	.jumbotron
+		p!=message
+		.container
+			.col-md-4
+				.row
+					h1 Signup
+				.row
+					form(action="/signup", method="post")
+						input.form-control(type="text", name="username", required)
+						input.form-control(type="password", name="password", required)
+						button.btn.btn-default(type="submit")
+							| Submit
+				.row
+					h1 Login
+				.row
+					form(action="/login", method="post")
+						input.form-control(type="text", name="username", required)
+						input.form-control(type="password", name="password", required)
+						button.btn.btn-default(type="submit")
+							| Submit

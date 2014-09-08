@@ -9,7 +9,7 @@ block content
 					span.icon-bar
 					span.icon-bar
 					span.icon-bar
-				a.navbar-brand(href='/') Avidread
+				a.navbar-brand(href='/') Avidlet
 			.navbar-collapse.collapse
 				ul.nav.navbar-nav.navbar-right
 					li
@@ -38,7 +38,11 @@ block content
 					.row
 						li
 							h3=user.username
-							h4=user.books
+							ul
+								-each book in user.books
+									.row
+										li
+											h4=book
 		#future.col-md-4
 			.row
 				h3 Add a new book

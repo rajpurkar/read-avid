@@ -24,12 +24,12 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(session({secret: "woah cat"}));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({secret: "woah cat", saveUninitialized: true, resave: false}));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 86400000 }));
 
 app.use(function (req, res, next) {
     var err = req.session.error,
-        msg = req.session.success;
+    msg = req.session.success;
     delete req.session.error;
     delete req.session.success;
     res.locals.message = '';
@@ -37,7 +37,6 @@ app.use(function (req, res, next) {
     if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
     next();
 });
-
 
 function authenticate(name, pass, fn) {
     if (!module.parent) console.log('authenticating %s:%s', name, pass);
@@ -81,10 +80,6 @@ function userExist(req, res, next) {
     });
 }
 
-
-
-
-
 app.use('/list', function(req, res,next){
     Book.find(function(error, books) {
         if(error){
@@ -103,9 +98,40 @@ app.use('/deleteAll', function(req,res, next){
 });
 
 
-app.post('/submit', function(req, res, next){
-    new Book({title: req.body.title, description: req.body.desc}).save();
-    res.redirect("/");
+app.post('/submit', requiredAuthentication, function(req, res, next){
+    var newBook = Book({title: req.body.title, description: req.body.desc});
+    var name = req.session.user.username;
+    newBook.save(function(err){
+        User.findOne({
+            username: name
+        },
+        function (err, user) {
+            user.books.push(newBook._id);
+            user.save(function(err){
+              res.redirect("/");
+          });     
+        });
+    });
+});
+
+app.post('/deleteUserBook', function(req, res){
+
+});
+
+app.post('/deleteUserBooks', function(req, res){
+
+});
+
+app.post('/deleteUser', function(req, res){
+
+});
+
+app.post('/deleteUsers', function(req,res){
+
+});
+
+app.post('/deleteBooks', function(req,res){
+
 });
 
 
@@ -166,16 +192,12 @@ app.post('/logout', function (req, res) {
     });
 });
 
-app.get("/", function (req, res) {
-    if (req.session.user) {
-        Book.find(function(error, books) {
-            User.find(function(error, users){
-                res.render('index', {books: books, users: users, user: req.session.user.username});
-            });
-        });
-    } else {
-        res.render('login');
-    }
+app.get("/", requiredAuthentication, function (req, res) {
+	Book.find(function(error, books) {
+		User.find(function(error, users){
+			res.render('index', {books: books, users: users, user: req.session.user.username});
+		});
+	});
 });
 
 // catch 404 and forward to error handler

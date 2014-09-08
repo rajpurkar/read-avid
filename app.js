@@ -10,7 +10,6 @@ var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOHQ_URL || 'mongodb://localhost/read-avid');
 
 var hash = require('./routes/hash').hash;
-var Book = require('./routes/book');
 var User = require('./routes/user');
 var app = express();
 
@@ -75,20 +74,10 @@ function userExist(req, res, next) {
             next();
         } else {
             req.session.error = "User Exist"
-            res.redirect("/signup");
+            res.redirect("/");
         }
     });
 }
-
-app.use('/list', function(req, res,next){
-    Book.find(function(error, books) {
-        if(error){
-            res.send(error);
-        }else{
-            res.send(books);    
-        }
-    });
-});
 
 app.use('/deleteAll', function(req,res, next){
     Book.remove(function (err) {
@@ -97,41 +86,35 @@ app.use('/deleteAll', function(req,res, next){
     res.send(200);
 });
 
-
 app.post('/submit', requiredAuthentication, function(req, res, next){
-    var newBook = Book({title: req.body.title, description: req.body.desc});
+    var newBook = {title: req.body.title, author: req.body.author};
     var name = req.session.user.username;
-    newBook.save(function(err){
-        User.findOne({
-            username: name
-        },
-        function (err, user) {
-            user.books.push(newBook._id);
-            user.save(function(err){
-              res.redirect("/");
-          });     
+    User.findOne({
+        username: name
+    },
+    function (err, user) {
+        User.count({
+            title: req.bodyParser.title
+        }, function (err, count) {
+            if (count === 0) {
+                user.books.push(newBook);
+                user.save(function(err){
+                  res.redirect("/");
+              });
+            }else{
+                req.session.error = "Book exists";
+                res.redirect("/");
+            }
         });
+
     });
 });
 
-app.post('/deleteUserBook', function(req, res){
-
-});
-
-app.post('/deleteUserBooks', function(req, res){
-
-});
-
-app.post('/deleteUser', function(req, res){
-
-});
-
-app.post('/deleteUsers', function(req,res){
-
-});
-
-app.post('/deleteBooks', function(req,res){
-
+app.get('/deleteBooks', function(req,res){
+    Book.remove(function (err) {
+     if (err) return handleError(err);
+     res.send(200);
+ });
 });
 
 
@@ -193,11 +176,9 @@ app.post('/logout', function (req, res) {
 });
 
 app.get("/", requiredAuthentication, function (req, res) {
-	Book.find(function(error, books) {
-		User.find(function(error, users){
-			res.render('index', {books: books, users: users, user: req.session.user.username});
-		});
-	});
+  User.find(function(error, users){
+   res.render('index', {users: users, user: req.session.user.username});
+});
 });
 
 // catch 404 and forward to error handler

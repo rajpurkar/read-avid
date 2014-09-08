@@ -22,14 +22,6 @@ block content
 	p!=message
 	#content.container
 		#books.col-md-4
-			.row
-				h1 books
-			ul
-				-each book in books
-					.row
-						li
-							h3=book.title
-							p=book.description
 		#users.col-md-4
 			.row
 				h1 Users
@@ -49,6 +41,6 @@ block content
 			.row
 				form(action="/submit", method="post", role="form")
 					input.form-control(type="text", name="title", placeholder="Title" required)
-					textarea.form-control(type="text", name="desc", placeholder="Enter Description Here", rows="3" required)
+					input.form-control(type="text", name="author", placeholder="Author" required)
 					button#submitBtn.btn.btn-default.col-xs-12.form-control(type="submit")
 						| Submit

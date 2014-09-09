@@ -88,13 +88,21 @@ app.use('/deleteAll', function(req,res, next){
 
 app.post('/submit', requiredAuthentication, function(req, res, next){
     var newBook = {title: req.body.title, author: req.body.author};
+    if(req.body.completed === "on"){
+        newBook.completed = true;
+        newBook.dateFinished = req.body.dateFinished;
+    }
+    else{
+        newBook.completed =  false;
+    }
+
     var name = req.session.user.username;
     User.findOne({
         username: name
     },
     function (err, user) {
         User.count({
-            title: req.bodyParser.title
+            title: req.body.title
         }, function (err, count) {
             if (count === 0) {
                 user.books.push(newBook);
@@ -111,10 +119,12 @@ app.post('/submit', requiredAuthentication, function(req, res, next){
 });
 
 app.get('/deleteBooks', function(req,res){
-    Book.remove(function (err) {
-     if (err) return handleError(err);
-     res.send(200);
- });
+    User.find(function (err, users) {
+        users.forEach(function(user){
+            user.books = [];
+            user.save();
+        });
+    });
 });
 
 
@@ -129,11 +139,13 @@ app.get("/signup", function (req, res) {
 app.post("/signup", userExist, function (req, res) {
     var password = req.body.password;
     var username = req.body.username;
+    var fullname = req.body.fullname;
 
     hash(password, function (err, salt, hash) {
         if (err) throw err;
         var user = new User({
             username: username,
+            fullname: fullname,
             salt: salt,
             hash: hash,
         }).save(function (err, newUser) {
@@ -142,7 +154,6 @@ app.post("/signup", userExist, function (req, res) {
                 if(user){
                     req.session.regenerate(function(){
                         req.session.user = user;
-                        req.session.success = 'Authenticated as ' + user.username + ' click to <a href="/logout">logout</a>. ' + ' You may now access <a href="/restricted">/restricted</a>.';
                         res.redirect('/');
                     });
                 }

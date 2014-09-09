@@ -6,7 +6,7 @@ var bookSchema = new Schema({
 	title: String,
 	author: String,
 	dateFinished: { type: Date, default: Date.now },
-	reading: { type: Boolean, default: false }
+	completed: { type: Boolean, default: false }
 });
 
 var UserSchema = new mongoose.Schema({

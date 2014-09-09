@@ -11,6 +11,11 @@ h1, h2, h3, input, p, li, textarea,a {
 	font-weight: 200;
 }
 
+ul > li{
+	margin: 0px;
+	padding: 0px;
+}
+
 body{
 	border-top: 5px solid #d00;
 }
@@ -27,8 +32,30 @@ ul{
 	padding: 0px;
 }
 
+#future{
+	padding: 0px 10px;
+}
+
 #content{
 	margin-top: 20px;
+}
+
+.book-outer{
+	display:inline-block;
+}
+
+.book{
+	margin: 10px 10px;
+	height: 170px;
+	width: 110px;
+	background-color: #ddd;
+	text-align: center;
+	display: table;
+}
+
+.book-content{
+	display: table-cell;
+	vertical-align: middle;
 }
 
 .form-control, .form-control:focus{

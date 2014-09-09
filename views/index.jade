@@ -21,26 +21,50 @@ block content
 								| Logout
 	p!=message
 	#content.container
-		#books.col-md-4
-		#users.col-md-4
-			.row
-				h1 Users
-			ul
-				-each user in users
-					.row
-						li
-							h3=user.username
-							ul
-								-each book in user.books
-									.row
-										li
-											h4=book
-		#future.col-md-4
-			.row
-				h3 Add a new book
-			.row
-				form(action="/submit", method="post", role="form")
-					input.form-control(type="text", name="title", placeholder="Title" required)
-					input.form-control(type="text", name="author", placeholder="Author" required)
-					button#submitBtn.btn.btn-default.col-xs-12.form-control(type="submit")
-						| Submit
+		.row
+			#users.col-md-4
+				.row
+					h1 Users
+				.row
+					ul
+						-each user in users
+							li
+								h3=user.fullname
+								#books
+									-each book in user.books
+												.book-outer
+													.book
+														.book-content
+															h4=book.title
+															p=book.author
+			.col-md-3
+				#future
+						.row
+							h3 Add a new book
+						.row
+							form#addForm(action="/submit", method="post", role="form" autocomplete="off")
+									.form-group
+											label(for='titleForm') Title
+											input#titleForm.form-control(type="text", name="title", placeholder="Title" required)
+										.form-group
+											label(for='authorForm') Author
+											input#authorForm.form-control(type="text", name="author", placeholder="Author" required)
+										.checkbox
+											label
+												input(type='checkbox', name="reading", checked=false)
+												| Completed
+										.form-group#dateFormGroup.hidden
+											label(for='dateForm') Date Finished
+											input#dateForm.form-control(type="date", name="dateFinished")
+										button#submitBtn.btn.btn-default.col-xs-12.form-control(type="submit")
+											| Submit
+
+block extrascripts
+	script.
+		$('#addForm :checkbox').change(function() {
+		if (this.checked) {
+			$('#dateFormGroup').removeClass('hidden');
+		}else{
+			$('#dateFormGroup').addClass('hidden');
+		}
+		});

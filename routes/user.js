@@ -5,10 +5,13 @@ var mongoose = require('mongoose'),
 var bookSchema = new Schema({
 	title: String,
 	author: String,
+	dateFinished: { type: Date, default: Date.now },
+	reading: { type: Boolean, default: false }
 });
 
 var UserSchema = new mongoose.Schema({
     username: { type: String, unique: true},
+    fullname: {type: String, default: "Anonybunny"},
     password: String,
     salt: String,
     hash: String,
